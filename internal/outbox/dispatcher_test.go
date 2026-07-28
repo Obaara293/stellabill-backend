@@ -21,7 +21,7 @@ func newMemRepo() *memRepo {
 	return &memRepo{progress: make(map[string]uuid.UUID)}
 }
 
-func (r *memRepo) Store(context.Background(), event *Event) error {
+func (r *memRepo) Store(ctx context.Context, event *Event) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.events = append(r.events, event)
