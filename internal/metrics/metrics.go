@@ -85,6 +85,16 @@ var (
 		Name: "churn_rate_24h",
 		Help: "Churn rate over the last 24 hours (0.0 to 1.0)",
 	})
+
+	// AnalyzeLastRunTimestamp tracks the last successful ANALYZE execution
+	// time per table as a Unix timestamp. Updated by the AnalyzeJob worker.
+	AnalyzeLastRunTimestamp = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "analyze_last_run_timestamp_seconds",
+			Help: "Unix timestamp of the last successful ANALYZE run per table",
+		},
+		[]string{"table"},
+	)
 )
 
 func MetricsMiddleware() gin.HandlerFunc {
@@ -170,6 +180,17 @@ var ShutdownDuration = promauto.NewHistogram(
 		Help:    "Time taken to shut down gracefully in seconds",
 		Buckets: []float64{.1, .25, .5, 1, 2.5, 5, 10, 25, 30},
 	},
+)
+
+// CSPReportsTotal counts CSP violations received by the /api/v1/csp-reports
+// sink. The "directive" label carries the violated-directive value extracted
+// from the report body, or "unknown" when the field is absent or unparseable.
+var CSPReportsTotal = promauto.NewCounterVec(
+	prometheus.CounterOpts{
+		Name: "csp_reports_total",
+		Help: "Total number of CSP violation reports received, by violated directive",
+	},
+	[]string{"directive"},
 )
 
 func sanitizeLabel(value string) string {
